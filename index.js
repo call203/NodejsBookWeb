@@ -1,6 +1,65 @@
 //index.js
 var express = require('express'); // 설치한 express module을 불러와서 변수(express)에 담습니다.
+var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
 var app = express(); //express를 실행하여 app object를 초기화 합니다.
+
+//DB setting
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.connect(process.env.MONGO_DB);
+var db = mongoose.connection;
+
+db.once('open', function(){
+  console.log('DB connected');
+});
+
+db.on('error',function(err){
+  console.log('DB ERROR : ', err)
+});
+
+//Other settings
+app.set('view engine','ejs');
+app.use(express.static(__dirname+'/public'));
+app.use(bodyParser.json()); //json형식의 데이터를 받음
+app.use(bodyParser.urlencoded({extended:true}));
+
+//DB schema
+var contactSchema = mongoose.Schema({
+  name:{type:String, require:true, unique:true},
+  email:{type:String},
+  phone:{type:String}
+});
+var Contact = mongoose.model('contact',contactSchema); //스키마 모델 생성
+
+//Home//
+app.get('/',function(req,res){
+  res.redirect('/contacts');
+});
+//Contacts - index
+app.get('/contacts', function(req, res){
+  //find: DB에서 검색 조건에 맞는 모델 찾고 콜백 함수를 호출
+  Contact.find({},function(err,contacts){
+    if(err) return res.json(err); //에러가 있다면 json으로 표시
+    res.render('contacts/index',{contacts:contacts});
+  });
+});
+
+//Contacts - New
+app.get('/contacts/new',function(req,res){
+  res.render('contacts/new');
+});
+//Contacts - create
+app.post('/contacts',function(req,res){
+  //create: data생성함
+  Contact.create(req.body,function(err,contact){
+    if(err) return res.json(err);
+    res.redirect('/contacts');
+  })
+})
+
 
 app.get('/', function(req, res) { // '/' 위치에 'get'요청을 받는 경우,
   res.send('Hello World!'); // "Hello World!"를 보냅니다.
