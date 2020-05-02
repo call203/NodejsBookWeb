@@ -28,67 +28,12 @@ app.use(bodyParser.json()); //json형식의 데이터를 받음
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(methodOverride('_method'));
 
-//DB schema
-var contactSchema = mongoose.Schema({
-  name:{type:String, require:true, unique:true},
-  email:{type:String},
-  phone:{type:String}
-});
-var Contact = mongoose.model('contact',contactSchema); //스키마 모델 생성
+//Routes
+app.use("/",require('./routes/home'));
+app.use('/contacts',require('./routes/contacts'));
 
-//Home//
-app.get('/',function(req,res){
-  res.redirect('/contacts');
-});
-//Contacts - index
-app.get('/contacts', function(req, res){
-  //find: DB에서 검색 조건에 맞는 모델 찾고 콜백 함수를 호출
-  Contact.find({},function(err,contacts){
-    if(err) return res.json(err); //에러가 있다면 json으로 표시
-    res.render('contacts/index',{contacts:contacts});
-  });
-});
 
-//Contacts - New
-app.get('/contacts/new',function(req,res){
-  res.render('contacts/new');
-});
-//Contacts - create
-app.post('/contacts',function(req,res){
-  //create: data생성함
-  Contact.create(req.body,function(err,contact){
-    if(err) return res.json(err);
-    res.redirect('/contacts');
-  })
-});
-//Contact - show
-app.get('/contacts/:id',function(req,res){
-  Contact.findOne({_id:req.params.id},function(err,contact){
-    if(err) return res.json(err);
-    res.render('contacts/show',{contact:contact});
-  })
-});
-//Contact - edit
-app.get('/contacts/:id/edit',function(req,res){
-  Contact.findOne({_id:req.params.id},function(err,contact){
-    if(err) return res.json(err);
-    res.render('contacts/edit',{contact:contact});
-  })
-});
-//Contact - update
-app.put('/contacts/:id',function(req,res){
-  Contact.findOneAndUpdate({_id:req.params.id},function(err,contact){
-    if(err) return res.json(err);
-    res.render('contacts/'+ req.params.id);
-  })
-});
-//Contact - destroy
-app.delete('/contacts/:id',function(req,res){
-  Contact.deleteOne({_id:req.params.id},function(err,contact){
-    if(err) return res.json(err);
-    res.redirect('/contacts')
-  })
-});
+
 
 
 app.get('/', function(req, res) { // '/' 위치에 'get'요청을 받는 경우,
