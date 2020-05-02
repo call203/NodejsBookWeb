@@ -28,13 +28,9 @@ app.use(bodyParser.json()); //json형식의 데이터를 받음
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(methodOverride('_method'));
 
-//Routes
+//Routes //DB는 해당 route 안에서만 사용하게 됨.
 app.use("/",require('./routes/home'));
 app.use('/contacts',require('./routes/contacts'));
-
-
-
-
 
 app.get('/', function(req, res) { // '/' 위치에 'get'요청을 받는 경우,
   res.send('Hello World!'); // "Hello World!"를 보냅니다.

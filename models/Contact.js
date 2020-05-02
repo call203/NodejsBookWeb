@@ -1,3 +1,4 @@
+//models/Contact.js
 var mongoose = require('mongoose');
 
 //DB schema
